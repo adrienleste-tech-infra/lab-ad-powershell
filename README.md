@@ -1,2 +1,1 @@
-# lab-ad-powershell
-Déploiement automatisé d'un domaine Active Directory en PowerShell — AGDLP, partage SMB et NTFS.
+   🚧 Lab en cours : test d'accès depuis un poste client joint au domaine à venir.
