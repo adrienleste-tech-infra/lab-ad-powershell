@@ -47,3 +47,19 @@ Add-ADGroupMember -Identity "GDL_Partage_Compta_RW" -Members "GG_Compta"
 New-Item -Path "C:\Partages\Compta" -ItemType Directory
 New-SmbShare -Name "Compta" -Path "C:\Partages\Compta" -FullAccess "$NetBIOS\GDL_Partage_Compta_RW"
 icacls "C:\Partages\Compta" /grant "$NetBIOS\GDL_Partage_Compta_RW:(OI)(CI)M"
+
+# --- PARTIE 4 : nouvel arrivant (démonstration AGDLP) ---
+# Une seule action : l'ajouter au groupe global. Aucun droit à modifier.
+New-ADUser -Name "Chloe Bernard" -SamAccountName "cbernard" -Path $OU -AccountPassword $mdp -Enabled $true
+Add-ADGroupMember -Identity "GG_Compta" -Members cbernard
+
+# --- PARTIE 5 : stratégies de groupe liées à l'OU Comptabilite ---
+# GPO 1 : lecteur P: -> \\SRV-AD\Compta
+# Créée et liée ici ; le mappage de lecteur se configure dans la console GPMC
+# (Configuration utilisateur > Préférences > Paramètres Windows > Mappages de lecteurs),
+# car les Préférences de GPO n'ont pas de commande PowerShell native.
+New-GPO -Name "GPO_Compta_LecteurP" | New-GPLink -Target $OU
+
+# GPO 2 : interdire le Panneau de configuration (clé de registre utilisateur)
+New-GPO -Name "GPO_Compta_NoPanneau" | New-GPLink -Target $OU
+Set-GPRegistryValue -Name "GPO_Compta_NoPanneau" -Key "HKCU\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -ValueName "NoControlPanel" -Type DWord -Value 1
